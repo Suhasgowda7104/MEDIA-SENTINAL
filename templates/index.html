@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next-Generation Deep Fake Face Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f0f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        input[type="file"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 30px;
+        }
+        #result p {
+            font-size: 1.2em;
+            color: #555;
+        }
+        img {
+            width: 400px;
+            height: auto;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #upload-another {
+            margin-top: 20px;
+            display: none;
+            background-color: #ff6347;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Next-Generation Deep Fake Face Detection</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="file" id="fileInput" accept="image/png, image/jpeg" required>
+            <br>
+            <button type="submit">Predict</button>
+        </form>
+
+        <div id="result" style="display:none;">
+            <p><strong>Prediction:</strong> <span id="prediction"></span></p>
+            <p><strong>Probability:</strong> <span id="probability"></span></p>
+            <h3>Explanation Results</h3>
+            <div>
+                <h4>LIME Explanation</h4>
+                <img id="limeImage" src="" alt="LIME explanation will appear here">
+            </div>
+            <div>
+                <h4>SHAP Explanation</h4>
+                <img id="shapImage" src="" alt="SHAP explanation will appear here">
+            </div>
+            <button id="upload-another">Upload Another Image</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultSection = document.getElementById('result');
+        const predictionEl = document.getElementById('prediction');
+        const probabilityEl = document.getElementById('probability');
+        const limeImageEl = document.getElementById('limeImage');
+        const shapImageEl = document.getElementById('shapImage');
+        const uploadAnotherBtn = document.getElementById('upload-another');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Create form data
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            formData.append('file', fileInput.files[0]);
+
+            // Clear previous results
+            resultSection.style.display = 'none';
+            predictionEl.textContent = '';
+            probabilityEl.textContent = '';
+            limeImageEl.src = '';
+            shapImageEl.src = '';
+
+            // Send file to the server
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.error) {
+                alert(result.error);
+            } else {
+                predictionEl.textContent = result.prediction;
+                probabilityEl.textContent = result.probability.toFixed(2);
+                limeImageEl.src = result.lime_path;
+                shapImageEl.src = result.shap_path;
+
+                resultSection.style.display = 'block';
+                uploadAnotherBtn.style.display = 'inline-block';
+            }
+        });
+
+        // Reload the page for uploading another image
+        uploadAnotherBtn.addEventListener('click', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
