@@ -68,7 +68,7 @@ Make sure you have the following installed on your machine:
 **Cloning the Repository**
 
 ```bash
-git clone https://github.com/yourusername/media-sentinel.git
+git clone https://github.com/Suhasgowda7104/MEDIA-SENTINAL.git
 cd media-sentinel
 ```
 
