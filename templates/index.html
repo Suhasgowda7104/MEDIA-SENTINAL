@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Sentinel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #475569;
+            --danger: #dc2626;
+            --danger-dark: #b91c1c;
+            --success: #16a34a;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card);
+            box-shadow: 0 2px 10px var(--shadow);
+            padding: 1.5rem 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .intro-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .upload-card {
+            background-color: var(--card);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px var(--shadow);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 0.5rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--background);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover, .upload-area.drag-over {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-info {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .button-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .button-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .button-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .button-danger:hover {
+            background-color: var(--danger-dark);
+        }
+
+        .button-full {
+            width: 100%;
+        }
+
+        #result {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background-color: var(--card);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px var(--shadow);
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .result-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-item {
+            background-color: var(--background);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .result-item-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-item-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .result-item-value.real {
+            color: var(--success);
+        }
+
+        .result-item-value.fake {
+            color: var(--danger);
+        }
+
+        .explanation-section {
+            margin-top: 2rem;
+        }
+
+        .explanation-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .explanation-item {
+            background-color: var(--background);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .explanation-item-header {
+            padding: 1rem;
+            background-color: var(--secondary);
+            color: white;
+            font-weight: 500;
+        }
+
+        .explanation-image-container {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .explanation-image {
+            max-width: 100%;
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .thumbnail {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 0.25rem;
+            display: none;
+            margin-right: 1rem;
+        }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .file-name {
+            font-size: 0.875rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .file-size {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .file-type {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            background-color: var(--card);
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: 2rem;
+            box-shadow: 0 -2px 10px var(--shadow);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        /* Video analysis specific styles */
+        .video-analysis {
+            margin-top: 2rem;
+        }
+
+        .video-frames-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: var(--background);
+            border-radius: 0.5rem;
+        }
+
+        .video-frame {
+            position: relative;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px var(--shadow);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .video-frame:hover {
+            transform: scale(1.05);
+        }
+
+        .video-frame img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .frame-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .frame-overlay.real {
+            background-color: rgba(22, 163, 74, 0.7);
+        }
+
+        .frame-overlay.fake {
+            background-color: rgba(220, 38, 38, 0.7);
+        }
+
+        .video-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .video-stat-item {
+            background-color: var(--background);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .video-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .video-stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .selected-frame {
+            border: 3px solid var(--primary);
+        }
+
+        /* Tabs for image/video results */
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-light);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .result-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .video-frames-container {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 4a6 6 0 1 1-6 6 6 6 0 0 1 6-6zm0 2a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 1.5a2.5 2.5 0 1 1-2.5 2.5A2.5 2.5 0 0 1 12 9.5z"></path>
+                </svg>
+                Media Sentinel
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="intro-section">
+                <h1>Advanced DeepFake Media Analysis</h1>
+                <p class="subtitle">Upload an image to analyze and determine whether it contains deepfake manipulations using our advanced AI detection system.</p>
+            </div>
+
+            <div class="upload-card">
+                <div class="card-header">
+                    <h2 class="card-title">Upload Media</h2>
+                </div>
+
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="upload-area" id="dropArea">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p class="upload-text">Drag and drop an image file, or click to browse</p>
+                        <p class="upload-info">Supported formats: JPG or PNG</p>
+                        <input type="file" id="fileInput" accept="image/png, image/jpeg, video/mp4, video/avi, video/quicktime, video/x-matroska, video/webm" required>
+                    </div>
+
+                    <div class="file-info" id="fileInfo">
+                        <img id="thumbnail" class="thumbnail" alt="Thumbnail">
+                        <div>
+                            <p class="file-name" id="fileName"></p>
+                            <p class="file-size" id="fileSize"></p>
+                            <p class="file-type" id="fileType"></p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="button button-primary button-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        Analyze Media
+                    </button>
+                </form>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p id="loadingText">Analyzing media, please wait...</p>
+            </div>
+
+            <div id="result">
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3 class="result-title">Analysis Results</h3>
+                    </div>
+
+                    <div class="tabs">
+                        <div class="tab active" id="summaryTab">Summary</div>
+                        <div class="tab" id="detailsTab">Details</div>
+                        <div class="tab" id="explanationTab">AI Explanation</div>
+                    </div>
+
+                    <!-- Summary Tab Content -->
+                    <div class="tab-content active" id="summaryContent">
+                        <div class="result-summary">
+                            <div class="result-item">
+                                <p class="result-item-label">Classification</p>
+                                <p class="result-item-value" id="prediction"></p>
+                            </div>
+                            <div class="result-item">
+                                <p class="result-item-label">Confidence</p>
+                                <p class="result-item-value" id="probability"></p>
+                            </div>
+                        </div>
+
+                        <!-- Video-specific stats (hidden for images) -->
+                        <div id="videoStats" class="video-stats" style="display: none;">
+                            <div class="video-stat-item">
+                                <p class="video-stat-label">Frames Analyzed</p>
+                                <p class="video-stat-value" id="framesAnalyzed">0</p>
+                            </div>
+                            <div class="video-stat-item">
+                                <p class="video-stat-label">Fake Frames</p>
+                                <p class="video-stat-value" id="fakeFramesCount">0</p>
+                            </div>
+                            <div class="video-stat-item">
+                                <p class="video-stat-label">Fake Percentage</p>
+                                <p class="video-stat-value" id="fakePercentage">0%</p>
+                            </div>
+                            <div class="video-stat-item">
+                                <p class="video-stat-label">Max Fake Probability</p>
+                                <p class="video-stat-value" id="maxFakeProbability">0%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details Tab Content -->
+                    <div class="tab-content" id="detailsContent">
+                        <!-- Video frames section (hidden for images) -->
+                        <div id="videoFramesSection" class="video-analysis" style="display: none;">
+                            <h4 class="explanation-title">Video Frame Analysis</h4>
+                            <p class="subtitle">Each frame was analyzed individually. Click on a frame to see its details.</p>
+                            
+                            <div id="videoFramesContainer" class="video-frames-container">
+                                <!-- Video frames will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explanation Tab Content -->
+                    <div class="tab-content" id="explanationContent">
+                        <div class="explanation-section">
+                            <h4 class="explanation-title">AI Visualization Analysis</h4>
+                            <p class="subtitle">These visualizations highlight the areas that influenced the AI's decision.</p>
+                            
+                            <div class="explanation-grid">
+                                <div class="explanation-item">
+                                    <div class="explanation-item-header">
+                                        LIME Explanation
+                                    </div>
+                                    <div class="explanation-image-container">
+                                        <img id="limeImage" class="explanation-image" src="" alt="LIME explanation">
+                                    </div>
+                                </div>
+                                <div class="explanation-item">
+                                    <div class="explanation-item-header">
+                                        SHAP Explanation
+                                    </div>
+                                    <div class="explanation-image-container">
+                                        <img id="shapImage" class="explanation-image" src="" alt="SHAP explanation">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button id="upload-another" class="button button-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12a9 9 0 0 0-9-9 9 9 0 0 0-9 9 9 9 0 0 0 9 9 9 9 0 0 0 9-9z"></path>
+                                <path d="M9 8l6 8"></path>
+                                <path d="M15 8l-6 8"></path>
+                            </svg>
+                            Analyze Another Media
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 Media Sentinel System.</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM elements
+        const form = document.getElementById('uploadForm');
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileType = document.getElementById('fileType');
+        const thumbnail = document.getElementById('thumbnail');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const resultSection = document.getElementById('result');
+        const predictionEl = document.getElementById('prediction');
+        const probabilityEl = document.getElementById('probability');
+        const limeImageEl = document.getElementById('limeImage');
+        const shapImageEl = document.getElementById('shapImage');
+        const uploadAnotherBtn = document.getElementById('upload-another');
+        
+        // Video specific elements
+        const videoStats = document.getElementById('videoStats');
+        const framesAnalyzed = document.getElementById('framesAnalyzed');
+        const fakeFramesCount = document.getElementById('fakeFramesCount');
+        const fakePercentage = document.getElementById('fakePercentage');
+        const maxFakeProbability = document.getElementById('maxFakeProbability');
+        const videoFramesSection = document.getElementById('videoFramesSection');
+        const videoFramesContainer = document.getElementById('videoFramesContainer');
+        
+        // Tabs
+        const summaryTab = document.getElementById('summaryTab');
+        const detailsTab = document.getElementById('detailsTab');
+        const explanationTab = document.getElementById('explanationTab');
+        const summaryContent = document.getElementById('summaryContent');
+        const detailsContent = document.getElementById('detailsContent');
+        const explanationContent = document.getElementById('explanationContent');
+        
+        // Current media type and session
+        let currentMediaType = null;
+        let currentSessionId = null;
+
+        // Handle file drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('drag-over');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('drag-over');
+        }   
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            updateFileInfo();
+        }
+
+        // Handle file selection
+        fileInput.addEventListener('change', updateFileInfo);
+
+        function updateFileInfo() {
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                
+                // Determine file type
+                const isVideo = file.type.startsWith('video/');
+                fileType.textContent = isVideo ? 'Video File' : 'Image File';
+                
+                fileInfo.style.display = 'flex';
+                
+                // Create thumbnail
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (isVideo) {
+                        // For videos, use a default video thumbnail
+                        thumbnail.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M2ViIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMi41IiByeT0iMi41Ij48L3JlY3Q+PHBvbHlnb24gcG9pbnRzPSIxMCw4IDE2LDEyIDEwLDE2Ij48L3BvbHlnb24+PC9zdmc+';
+                    } else {
+                        thumbnail.src = e.target.result;
+                    }
+                    thumbnail.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                fileInfo.style.display = 'none';
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Handle click on upload area
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Tab switching
+        summaryTab.addEventListener('click', () => switchTab('summary'));
+        detailsTab.addEventListener('click', () => switchTab('details'));
+        explanationTab.addEventListener('click', () => switchTab('explanation'));
+
+        function switchTab(tabName) {
+            // Remove active class from all tabs and contents
+            [summaryTab, detailsTab, explanationTab].forEach(tab => tab.classList.remove('active'));
+            [summaryContent, detailsContent, explanationContent].forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            if (tabName === 'summary') {
+                summaryTab.classList.add('active');
+                summaryContent.classList.add('active');
+            } else if (tabName === 'details') {
+                detailsTab.classList.add('active');
+                detailsContent.classList.add('active');
+            } else if (tabName === 'explanation') {
+                explanationTab.classList.add('active');
+                explanationContent.classList.add('active');
+            }
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('Please select a media file');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const isVideo = file.type.startsWith('video/');
+            
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Reset and show loading
+            resultSection.style.display = 'none';
+            loading.style.display = 'block';
+            loadingText.textContent = isVideo ? 'Analyzing video, please wait (this may take a while)...' : 'Analyzing image, please wait...';
+            
+            // Reset all elements
+            resetResults();
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+
+                if (result.error) {
+                    alert(result.error);
+                } else {
+                    // Store current media type
+                    currentMediaType = result.media_type;
+                    
+                    // Display common results
+                    predictionEl.textContent = result.prediction;
+                    if (result.prediction.toLowerCase() === 'real') {
+                        predictionEl.classList.add('real');
+                    } else {
+                        predictionEl.classList.add('fake');
+                    }
+                    
+                    probabilityEl.textContent = (result.probability * 100).toFixed(1) + '%';
+                    
+                    // Set explanation images
+                    const baseUrl = '/uploads/';
+                    limeImageEl.src = baseUrl + result.lime_path;
+                    shapImageEl.src = baseUrl + result.shap_path;
+                    
+                    // Handle video-specific results
+                    if (result.media_type === 'video') {
+                        currentSessionId = result.session_id;
+                        
+                        // Show video stats
+                        videoStats.style.display = 'grid';
+                        videoFramesSection.style.display = 'block';
+                        
+                        // Update video stats
+                        framesAnalyzed.textContent = result.frames_analyzed;
+                        fakeFramesCount.textContent = result.fake_frames_count;
+                        fakePercentage.textContent = result.fake_frames_percentage.toFixed(1) + '%';
+                        maxFakeProbability.textContent = (result.max_fake_probability * 100).toFixed(1) + '%';
+                        
+                        // Load video frames
+                        await loadVideoFrames(result.session_id);
+                    } else {
+                        // Hide video-specific elements for images
+                        videoStats.style.display = 'none';
+                        videoFramesSection.style.display = 'none';
+                    }
+                    
+                    // Show results
+                    resultSection.style.display = 'block';
+                    
+                    // Default to summary tab
+                    switchTab('summary');
+                }
+            } catch (error) {
+                alert('An error occurred during analysis. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        // Load video frames
+        async function loadVideoFrames(sessionId) {
+            try {
+                const response = await fetch(`/video_frames/${sessionId}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('Error loading video frames:', data.error);
+                    return;
+                }
+                
+                // Clear existing frames
+                videoFramesContainer.innerHTML = '';
+                
+                // Add frames to container
+                data.frames.forEach(frame => {
+                    const frameElement = document.createElement('div');
+                    frameElement.className = 'video-frame';
+                    
+                    const img = document.createElement('img');
+                    img.src = `/uploads/video_frames/${frame.path}`;
+                    img.alt = 'Video frame';
+                    
+                    const overlay = document.createElement('div');
+                    overlay.className = `frame-overlay ${frame.prediction}`;
+                    overlay.textContent = `${(frame.probability * 100).toFixed(1)}%`;
+                    
+                    frameElement.appendChild(img);
+                    frameElement.appendChild(overlay);
+                    
+                    // Add click event to show this frame's explanation
+                    frameElement.addEventListener('click', () => {
+                        // Remove selected class from all frames
+                        document.querySelectorAll('.video-frame').forEach(f => f.classList.remove('selected-frame'));
+                        
+                        // Add selected class to this frame
+                        frameElement.classList.add('selected-frame');
+                        
+                        // Switch to explanation tab
+                        switchTab('explanation');
+                    });
+                    
+                    videoFramesContainer.appendChild(frameElement);
+                });
+            } catch (error) {
+                console.error('Error loading video frames:', error);
+            }
+        }
+
+        // Reset all result elements
+        function resetResults() {
+            predictionEl.textContent = '';
+            predictionEl.className = 'result-item-value';
+            probabilityEl.textContent = '';
+            limeImageEl.src = '';
+            shapImageEl.src = '';
+            
+            // Reset video elements
+            framesAnalyzed.textContent = '0';
+            fakeFramesCount.textContent = '0';
+            fakePercentage.textContent = '0%';
+            maxFakeProbability.textContent = '0%';
+            videoFramesContainer.innerHTML = '';
+            
+            // Reset current media type and session
+            currentMediaType = null;
+            currentSessionId = null;
+        }
+
+        // Upload another button
+        uploadAnotherBtn.addEventListener('click', () => {
+            resultSection.style.display = 'none';
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            thumbnail.style.display = 'none';
+            resetResults();
+        });
+    </script>
+</body>
+</html>
